@@ -220,10 +220,6 @@ int WinMain(HINSTANCE hInstance,
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
         glViewport(0, 0, WNDWIDTH, WNDHEIGHT);
-
-        uint32_t verticesVBO;
-        glGenBuffers(1, &verticesVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST); 
         
