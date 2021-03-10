@@ -9,6 +9,7 @@
 #include "math.h"
 #include "player.h"
 #include "camera.h"
+#include "terrain.h"
 
 #define global_variable static
 #define WNDWIDTH 1000
@@ -104,29 +105,30 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 static Shader mesh_shader;
 static Mesh tree;
 static Mesh trees[4];
-static Mesh drone;
-static Mesh drones[4];
 
 static Player player;
 static Controller controller;
 
 static ThirdPersonCamera third_person_camera = ThirdPersonCamera(&player.position, &player.current_rotation);
 
+static Terrain terrain;
+
 void SetUpStuff()
 {
     shader_load(&mesh_shader, "./code/mesh_shader.vert", "./code/mesh_shader.frag");
     LoadOBJFileIndex(&tree, "./data/tree.obj", "./data/tree4.bmp");
-    LoadOBJFileIndex(&drone, "./data/drone.obj", "./data/drone.bmp");
+    
+    Vec3 terrain_position = {-4.0f, 0.0f, -4.0f};
+    generate_terrain(&terrain, terrain_position, 4, 4, 4, "./data/grass.bmp");
+    push_to_render(&terrain, mesh_shader.ID);
 
     for(int i = 0; i < 4; i++)
     {
         trees[i] = tree;
-        drones[i] = drone;
     }
 
     Vec3 player_pos = {-2.0f, 0.0f, 0.0f};
     init_player(&player, player_pos, mesh_shader.ID, 5.0f, 1.0f);
-    push_to_render(drones, 4, mesh_shader.ID);
     push_to_render(trees, 4, mesh_shader.ID);
     
     shader_use(mesh_shader.ID);
@@ -147,26 +149,16 @@ void UpdateStuff(float deltaTime)
 
     view = third_person_camera.view;
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.m[0]);
-
-    static float angle = 0.0f;
+    
     for(int y = 0; y < 2; y++)
     {
         for(int x = 0; x < 2; x++)
         {
-
-            Matrix rotation = get_rotation_y_matrix(angle);
-
-            Vec3 trans_tree = {(float)x, 0.0f, (float)y};
+            Vec3 trans_tree = {(float)x * 4, 0.0f, (float)y * 4};
             Matrix translation_tree = get_translation_matrix(trans_tree);
-            trees[(y * 2) + x].model = rotation * translation_tree;
-
-            Vec3 trans_drone = {(float)x, -1.0f, (float)y};
-            Matrix translation_drone = get_translation_matrix(trans_drone);
-            drones[(y * 2) + x].model = rotation * translation_drone;
-
+            trees[(y * 2) + x].model = translation_tree;
         }
     }
-    angle += 1.0f * deltaTime;
 }
 
 int WinMain(HINSTANCE hInstance,

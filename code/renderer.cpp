@@ -3,8 +3,21 @@
 #include "renderer.h"
 #include <vector>
 
+
 static std::vector<render_unit> render_buffer;
 
+void push_to_render(Terrain* terrain, uint32_t shaderId)
+{
+    render_unit meshes;
+    meshes.vaoId = terrain->mesh.vao;
+    meshes.texId = terrain->mesh.texId;
+    meshes.num_meshes = 1;
+    meshes.shaderId = shaderId;
+    meshes.entities = (Mesh**)malloc(meshes.num_meshes * sizeof(void*));
+    *meshes.entities = &terrain->mesh;
+    meshes.world_location = glGetUniformLocation(shaderId, "world");
+    render_buffer.push_back(meshes);
+}
 
 void push_to_render(Mesh* mesh, int num_meshes, uint32_t shaderId)
 {
