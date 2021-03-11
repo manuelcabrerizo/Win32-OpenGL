@@ -76,7 +76,14 @@ struct Mesh
     Matrix model;
 };
 
+struct BoundingBox
+{
+    Vec3* min;
+    Vec3* max;
+    bool is_point_inside(Vec3& p);
+};
 
+void setup_quad(Mesh* quad);
 Texture LoadBMP(const char* filename);
 void LoadOBJFile(Mesh* mesh, const char* filePhat, const char* texFileName);
 void LoadOBJFileIndex(Mesh* mesh, const char* filePhat, const char* texFileName);

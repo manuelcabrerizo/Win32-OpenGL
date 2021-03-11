@@ -25,8 +25,8 @@ void generate_terrain(Terrain* terrain, Vec3 position, int num_row, int num_col,
             Vec3 vertex = {position_x, position_y, position_z};
             terrain->mesh.vertexBuffer[(z * terrain->num_vert_row) + x].vertice = vertex;
             Vec2 tex_coord;
-            tex_coord.x = x * 1.0f / 2; //* (1.0f / terrain->num_cell_row);
-            tex_coord.y = z * 1.0f / 2; //* (1.0f / terrain->num_cell_col);
+            tex_coord.x = x * 1.0f / 2; 
+            tex_coord.y = z * 1.0f / 2; 
             terrain->mesh.vertexBuffer[(z * terrain->num_vert_row) + x].textureCoord = tex_coord;
 
         }

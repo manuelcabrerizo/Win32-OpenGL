@@ -108,13 +108,14 @@ static Mesh trees[4];
 
 static Player player;
 static Controller controller;
-
 static ThirdPersonCamera third_person_camera = ThirdPersonCamera(&player.position, &player.current_rotation);
-
 static Terrain terrain;
 
+static Mesh quad;
+static Mesh quads[5];
+
 void SetUpStuff()
-{
+{   
     shader_load(&mesh_shader, "./code/mesh_shader.vert", "./code/mesh_shader.frag");
     LoadOBJFileIndex(&tree, "./data/tree.obj", "./data/tree4.bmp");
     
@@ -122,12 +123,19 @@ void SetUpStuff()
     generate_terrain(&terrain, terrain_position, 4, 4, 4, "./data/grass.bmp");
     push_to_render(&terrain, mesh_shader.ID);
 
+    setup_quad(&quad); 
+    for(int i = 0; i < 5; i++)
+    {
+        quads[i] = quad;
+    }
+    push_to_render(quads, 5, mesh_shader.ID);
+
     for(int i = 0; i < 4; i++)
     {
         trees[i] = tree;
     }
 
-    Vec3 player_pos = {-2.0f, 0.0f, 0.0f};
+    Vec3 player_pos = {-2.0f, 0.0f, -2.0f};
     init_player(&player, player_pos, mesh_shader.ID, 5.0f, 1.0f);
     push_to_render(trees, 4, mesh_shader.ID);
     
@@ -147,18 +155,26 @@ void UpdateStuff(float deltaTime)
 
     process_camera_movement(&third_person_camera, deltaTime);
 
+    Vec3 quad_pos = {player.position.x, player.position.y, player.position.z};
+    Matrix quad_trans = get_translation_matrix(quad_pos);
+    quads[0].model = quad_trans; 
+
     view = third_person_camera.view;
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.m[0]);
-    
+   
+    Vec3 check_positions[4]; 
     for(int y = 0; y < 2; y++)
     {
         for(int x = 0; x < 2; x++)
         {
             Vec3 trans_tree = {(float)x * 4, 0.0f, (float)y * 4};
+            check_positions[(y * 2) + x] = trans_tree;
             Matrix translation_tree = get_translation_matrix(trans_tree);
             trees[(y * 2) + x].model = translation_tree;
+            quads[1 + ((y * 2) + x)].model = translation_tree;
         }
     }
+    player_handle_colitions(&player, check_positions, 4);
 }
 
 int WinMain(HINSTANCE hInstance,

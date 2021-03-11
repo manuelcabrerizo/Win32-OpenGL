@@ -3,7 +3,83 @@
 #include <string.h>
 
 
+bool BoundingBox::is_point_inside(Vec3& p)
+{
+    if(p.x >= this->min->x && p.y >= this->min->y && p.z >= this->min->z &&
+       p.x <= this->max->x && p.y <= this->max->y && p.z <= this->max->z)
+    {
+        return true;
+    }   
+    else
+    {
+        return false;
+    }
+}
 
+void setup_quad(Mesh* quad)
+{
+
+    float quad_vertices[] = {
+        0.5f, 0.1f,  0.5f, 
+        0.5f, 0.1f, -0.5f, 
+        -0.5f, 0.1f, -0.5f, 
+        -0.5f, 0.1f,  0.5f  
+    };
+    unsigned int quad_indices[] = {  
+        0, 1, 3,   
+        1, 2, 3    
+    };
+
+    // setup quad stuff
+    quad->vertexBuffer = (VertexBuffer*)malloc(4 * sizeof(VertexBuffer));
+    quad->indices      = (int*)malloc(6 * sizeof(int));
+
+    int index = 0;
+    for(int i = 0; i < 4; i++)
+    {
+        quad->vertexBuffer[i].vertice.x = quad_vertices[index];
+        index++;
+        quad->vertexBuffer[i].vertice.y = quad_vertices[index];
+        index++;
+        quad->vertexBuffer[i].vertice.z = quad_vertices[index];
+        index++;
+
+        Vec3 nulo_vec3 = {0.0f, 0.0f, 0.0f};
+        Vec2 nulo_vec2 = {0.0f, 0.0f};
+        quad->vertexBuffer[i].textureCoord = nulo_vec2;
+        quad->vertexBuffer[i].normal = nulo_vec3;
+    }
+
+    for(int i = 0; i < 6; i++)
+    {
+        quad->indices[i] = quad_indices[i]; 
+    }
+    quad->numIndex = 6;  
+
+    glGenVertexArrays(1, &quad->vao);
+    glBindVertexArray(quad->vao);
+    uint32_t VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(VertexBuffer), quad->vertexBuffer, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexBuffer), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+
+    uint32_t EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad->numIndex * sizeof(unsigned int), quad->indices, GL_STATIC_DRAW);
+
+    quad->model = get_identity_matrix();
+
+    glBindVertexArray(0);
+    free(quad->vertexBuffer);
+    free(quad->indices); 
+}
 
 Texture LoadBMP(const char* filename)
 {
