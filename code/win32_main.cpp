@@ -112,7 +112,7 @@ static ThirdPersonCamera third_person_camera = ThirdPersonCamera(&player.positio
 static Terrain terrain;
 
 static Mesh quad;
-static Mesh quads[5];
+static Mesh bounding_box_quad;
 
 void SetUpStuff()
 {   
@@ -124,11 +124,10 @@ void SetUpStuff()
     push_to_render(&terrain, mesh_shader.ID);
 
     setup_quad(&quad); 
-    for(int i = 0; i < 5; i++)
-    {
-        quads[i] = quad;
-    }
-    push_to_render(quads, 5, mesh_shader.ID);
+    push_to_render(&quad, 1, mesh_shader.ID);
+
+    setup_quad(&bounding_box_quad);
+    push_to_render(&bounding_box_quad, 1, mesh_shader.ID);
 
     for(int i = 0; i < 4; i++)
     {
@@ -157,7 +156,7 @@ void UpdateStuff(float deltaTime)
 
     Vec3 quad_pos = {player.position.x, player.position.y, player.position.z};
     Matrix quad_trans = get_translation_matrix(quad_pos);
-    quads[0].model = quad_trans; 
+    quad.model = quad_trans; 
 
     view = third_person_camera.view;
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.m[0]);
@@ -171,10 +170,18 @@ void UpdateStuff(float deltaTime)
             check_positions[(y * 2) + x] = trans_tree;
             Matrix translation_tree = get_translation_matrix(trans_tree);
             trees[(y * 2) + x].model = translation_tree;
-            quads[1 + ((y * 2) + x)].model = translation_tree;
         }
     }
-    player_handle_colitions(&player, check_positions, 4);
+
+    BoundingBox test_box;
+    Vec3 test_box_min = {-4.0f, 0.0f, -4.0f};
+    Vec3 test_box_max = {8.0f, 0.0f,  -2.5f};
+    test_box.min = &test_box_min;
+    test_box.max = &test_box_max;
+    player_handle_colitions(&player, check_positions, 4, &test_box, 1);
+    Vec3 bounding_box_pos = get_middle_of_bounding_box(test_box);
+    Vec3 bounding_box_scale = get_scale_of_bounding_box(test_box);
+    bounding_box_quad.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos);
 }
 
 int WinMain(HINSTANCE hInstance,

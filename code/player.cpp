@@ -103,12 +103,19 @@ void player_input_handler(Player* player, Controller* controller)
     }
 }
 
-void player_handle_colitions(Player* player, Vec3* colition_point, int num_checks)
+void player_handle_colitions(Player* player, Vec3* colition_point, int num_checks, BoundingBox* bounding_box, int num_checks_box)
 {
     bool is_coliding = false;
     for(int i = 0; i < num_checks; i++)
     {
         if(player->bounding_box.is_point_inside(colition_point[i]))
+        {
+            is_coliding = true;      
+        }
+    }
+    for(int i = 0; i < num_checks_box; i++)
+    {
+        if(player->bounding_box.is_bounding_box_inside(bounding_box[i]))
         {
             is_coliding = true;      
         }

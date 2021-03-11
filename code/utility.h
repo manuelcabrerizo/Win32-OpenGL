@@ -81,8 +81,11 @@ struct BoundingBox
     Vec3* min;
     Vec3* max;
     bool is_point_inside(Vec3& p);
+    bool is_bounding_box_inside(BoundingBox& box);
 };
 
+Vec3 get_middle_of_bounding_box(BoundingBox box);
+Vec3 get_scale_of_bounding_box(BoundingBox box);
 void setup_quad(Mesh* quad);
 Texture LoadBMP(const char* filename);
 void LoadOBJFile(Mesh* mesh, const char* filePhat, const char* texFileName);

@@ -16,6 +16,51 @@ bool BoundingBox::is_point_inside(Vec3& p)
     }
 }
 
+bool BoundingBox::is_bounding_box_inside(BoundingBox& box)
+{
+    float box_width = box.max->x - box.min->x;
+    float box_depth = box.max->z - box.min->z;
+    float box_x = box.min->x;
+    float box_z = box.min->z;
+
+    float player_width = this->max->x - this->min->x;
+    float player_depth = this->max->z - this->min->z;
+    float player_x = this->min->x;
+    float player_z = this->min->z;
+
+    if(player_x <= box_x + box_width &&
+       player_x + player_width >= box_x &&
+       player_z <= box_z + box_depth &&
+       player_z + player_depth >+ box_z)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+Vec3 get_middle_of_bounding_box(BoundingBox box)
+{
+    float box_width = box.max->x - box.min->x;
+    float box_depth = box.max->z - box.min->z;
+    float box_x = box.min->x;
+    float box_z = box.min->z;
+    Vec3 middle = {box_x + (box_width / 2.0f), 0.01f, box_z + (box_depth / 2.0f)};
+    return middle;
+}
+
+Vec3 get_scale_of_bounding_box(BoundingBox box)
+{
+    Vec3 result = {
+        box.max->x - box.min->x,
+        0.0f,
+        box.max->z - box.min->z
+    };
+    return result;
+}
+
 void setup_quad(Mesh* quad)
 {
 
