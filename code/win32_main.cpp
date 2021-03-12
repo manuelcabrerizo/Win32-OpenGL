@@ -113,6 +113,7 @@ static Terrain terrain;
 
 static Mesh quad;
 static Mesh bounding_box_quad;
+static Mesh bounding_box_quad_2;
 
 void SetUpStuff()
 {   
@@ -128,6 +129,8 @@ void SetUpStuff()
 
     setup_quad(&bounding_box_quad);
     push_to_render(&bounding_box_quad, 1, mesh_shader.ID);
+    setup_quad(&bounding_box_quad_2);
+    push_to_render(&bounding_box_quad_2, 1, mesh_shader.ID);
 
     for(int i = 0; i < 4; i++)
     {
@@ -173,15 +176,22 @@ void UpdateStuff(float deltaTime)
         }
     }
 
-    BoundingBox test_box;
-    Vec3 test_box_min = {-4.0f, 0.0f, -4.0f};
+    BoundingBox test_box[2];
+    Vec3 test_box_min = {-2.5f, 0.0f, -4.0f};
     Vec3 test_box_max = {8.0f, 0.0f,  -2.5f};
-    test_box.min = &test_box_min;
-    test_box.max = &test_box_max;
-    player_handle_colitions(&player, check_positions, 4, &test_box, 1);
-    Vec3 bounding_box_pos = get_middle_of_bounding_box(test_box);
-    Vec3 bounding_box_scale = get_scale_of_bounding_box(test_box);
+    Vec3 test_box_min_2 = {-4.0f, 0.0f, -2.5f};
+    Vec3 test_box_max_2 = {-2.5f, 0.0f, 8.0f};
+    test_box[0].min = &test_box_min;
+    test_box[0].max = &test_box_max;
+    test_box[1].min = &test_box_min_2;
+    test_box[1].max = &test_box_max_2;
+    player_handle_colitions(&player, test_box, 2);
+    Vec3 bounding_box_pos = get_middle_of_bounding_box(test_box[0]);
+    Vec3 bounding_box_scale = get_scale_of_bounding_box(test_box[0]);
     bounding_box_quad.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos);
+    bounding_box_pos = get_middle_of_bounding_box(test_box[1]);
+    bounding_box_scale = get_scale_of_bounding_box(test_box[1]);
+    bounding_box_quad_2.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos);
 }
 
 int WinMain(HINSTANCE hInstance,

@@ -16,5 +16,5 @@ void main()
         shadow = 0.0;
     }
     vec3 objectColor = texture(texture1, TexCoord).xyz;
-    FragColor = (vec4(objectColor, 1.0) * (shadow + 0.3));
+    FragColor = (vec4(objectColor, 1.0) * (shadow + 0.5));
 }

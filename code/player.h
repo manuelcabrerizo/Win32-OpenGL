@@ -24,6 +24,6 @@ struct Player
 void init_player(Player* player, Vec3 position, uint32_t shaderId, float speed, float rotation);
 void process_player_movement(Player* player, float deltaTime);
 void player_input_handler(Player* player, Controller* controller);
-void player_handle_colitions(Player* player, Vec3* colition_point, int num_checks, BoundingBox* bounding_box, int num_checks_box);
+void player_handle_colitions(Player* player, BoundingBox* bounding_box, int num_checks_box);
 
 #endif

@@ -103,24 +103,36 @@ void player_input_handler(Player* player, Controller* controller)
     }
 }
 
-void player_handle_colitions(Player* player, Vec3* colition_point, int num_checks, BoundingBox* bounding_box, int num_checks_box)
+void player_handle_colitions(Player* player, BoundingBox* bounding_box, int num_checks_box)
 {
     bool is_coliding = false;
-    for(int i = 0; i < num_checks; i++)
-    {
-        if(player->bounding_box.is_point_inside(colition_point[i]))
-        {
-            is_coliding = true;      
-        }
-    }
+    Vec3 actual_contat_normal;
     for(int i = 0; i < num_checks_box; i++)
     {
-        if(player->bounding_box.is_bounding_box_inside(bounding_box[i]))
+        Vec3 contact_normal;
+        Vec3 contact_point;
+        float t_hit_near;
+        if(ray_intersect_bounding_box(player->position, player->direction, bounding_box[i], contact_point, contact_normal, t_hit_near))
         {
-            is_coliding = true;      
+            if(t_hit_near <= 1.0f)
+            {
+                is_coliding = true;
+                actual_contat_normal = contact_normal;
+            }
         }
     }
+    if(is_coliding)
+    {
+        if(actual_contat_normal.x > 0 || actual_contat_normal.x < 0)
+            player->position.z = player->new_position.z;
+        if(actual_contat_normal.z > 0 || actual_contat_normal.z < 0)
+            player->position.x = player->new_position.x;
+    }
     if(!is_coliding)
+    {
         player->position = player->new_position;
+    }
 }
+
+
 

@@ -3,6 +3,77 @@
 #include <string.h>
 
 
+void swap(float& a, float& b)
+{
+    float temp = a;
+    a = b;
+    b = temp;
+}
+
+float max(float a, float b)
+{
+    if(a > b)
+        return a;
+    else
+        return b;
+}
+
+float min(float a, float b)
+{
+    if(a < b)
+        return a;
+    else
+        return b;
+}
+
+
+bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
+                                Vec3& contact_point, Vec3& contact_normal, float& t_hit_near)
+{
+    float target_width = target.max->x - target.min->x;
+    float target_depth = target.max->z - target.min->z;
+    float target_x = target.min->x;
+    float target_z = target.min->z;
+    Vec3 target_pos = {target_x, 0.0f, target_z};
+    Vec3 target_size = {target_width, 0.0f, target_depth};
+
+    Vec3 t_near = (target_pos - ray_origin) / ray_dir;
+    Vec3 t_far  = (target_pos + target_size - ray_origin) / ray_dir;
+
+    if(t_near.x > t_far.x)
+        swap(t_near.x, t_far.x);
+    if(t_near.z > t_far.z)
+        swap(t_near.z, t_far.z);
+    if(t_near.x > t_far.z || t_near.z > t_far.x)
+        return false;
+    
+    t_hit_near = max(t_near.x, t_near.z);
+    float t_hit_far = min(t_far.x, t_far.z);
+    if(t_hit_far < 0) 
+       return false;
+
+    Vec3 result = ray_dir * t_hit_near;
+    contact_point = ray_origin + result;
+
+    if(t_near.x > t_near.z)
+    {
+        if(ray_dir.x < 0)
+            contact_normal = {1.0f, 0.0f, 0.0f};
+        else
+            contact_normal = {-1.0f, 0.0f, 0.0f};
+    }
+    else if(t_near.x < t_near.z)
+    {
+        if(ray_dir.z < 0)
+            contact_normal = {0.0f, 0.0f, 1.0f};
+        else
+            contact_normal = {0.0f, 0.0f, -1.0f};
+    } 
+
+    return true;
+}
+
+
 bool BoundingBox::is_point_inside(Vec3& p)
 {
     if(p.x >= this->min->x && p.y >= this->min->y && p.z >= this->min->z &&

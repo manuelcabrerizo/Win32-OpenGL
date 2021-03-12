@@ -83,7 +83,8 @@ struct BoundingBox
     bool is_point_inside(Vec3& p);
     bool is_bounding_box_inside(BoundingBox& box);
 };
-
+bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
+                                Vec3& contact_point, Vec3& contact_normal, float& t_hit_near);
 Vec3 get_middle_of_bounding_box(BoundingBox box);
 Vec3 get_scale_of_bounding_box(BoundingBox box);
 void setup_quad(Mesh* quad);
