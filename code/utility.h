@@ -78,11 +78,16 @@ struct Mesh
 
 struct BoundingBox
 {
-    Vec3* min;
-    Vec3* max;
+    Vec3 min;
+    Vec3 max;
     bool is_point_inside(Vec3& p);
     bool is_bounding_box_inside(BoundingBox& box);
 };
+
+float maxf(float a, float b);
+float minf(float a, float b);
+void swap(float& a, float& b);
+float absf(float a);
 bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
                                 Vec3& contact_point, Vec3& contact_normal, float& t_hit_near);
 Vec3 get_middle_of_bounding_box(BoundingBox box);

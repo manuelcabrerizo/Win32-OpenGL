@@ -10,7 +10,7 @@ void swap(float& a, float& b)
     b = temp;
 }
 
-float max(float a, float b)
+float maxf(float a, float b)
 {
     if(a > b)
         return a;
@@ -18,7 +18,7 @@ float max(float a, float b)
         return b;
 }
 
-float min(float a, float b)
+float minf(float a, float b)
 {
     if(a < b)
         return a;
@@ -26,14 +26,23 @@ float min(float a, float b)
         return b;
 }
 
+float absf(float a)
+{
+    if(a < 0)
+    {
+        a *= -1.0f;
+    }
+    return a;
+}
+
 
 bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
                                 Vec3& contact_point, Vec3& contact_normal, float& t_hit_near)
 {
-    float target_width = target.max->x - target.min->x;
-    float target_depth = target.max->z - target.min->z;
-    float target_x = target.min->x;
-    float target_z = target.min->z;
+    float target_width = target.max.x - target.min.x;
+    float target_depth = target.max.z - target.min.z;
+    float target_x = target.min.x;
+    float target_z = target.min.z;
     Vec3 target_pos = {target_x, 0.0f, target_z};
     Vec3 target_size = {target_width, 0.0f, target_depth};
 
@@ -47,8 +56,8 @@ bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox targe
     if(t_near.x > t_far.z || t_near.z > t_far.x)
         return false;
     
-    t_hit_near = max(t_near.x, t_near.z);
-    float t_hit_far = min(t_far.x, t_far.z);
+    t_hit_near = maxf(t_near.x, t_near.z);
+    float t_hit_far = minf(t_far.x, t_far.z);
     if(t_hit_far < 0) 
        return false;
 
@@ -76,8 +85,8 @@ bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox targe
 
 bool BoundingBox::is_point_inside(Vec3& p)
 {
-    if(p.x >= this->min->x && p.y >= this->min->y && p.z >= this->min->z &&
-       p.x <= this->max->x && p.y <= this->max->y && p.z <= this->max->z)
+    if(p.x >= this->min.x && p.y >= this->min.y && p.z >= this->min.z &&
+       p.x <= this->max.x && p.y <= this->max.y && p.z <= this->max.z)
     {
         return true;
     }   
@@ -89,15 +98,15 @@ bool BoundingBox::is_point_inside(Vec3& p)
 
 bool BoundingBox::is_bounding_box_inside(BoundingBox& box)
 {
-    float box_width = box.max->x - box.min->x;
-    float box_depth = box.max->z - box.min->z;
-    float box_x = box.min->x;
-    float box_z = box.min->z;
+    float box_width = box.max.x - box.min.x;
+    float box_depth = box.max.z - box.min.z;
+    float box_x = box.min.x;
+    float box_z = box.min.z;
 
-    float player_width = this->max->x - this->min->x;
-    float player_depth = this->max->z - this->min->z;
-    float player_x = this->min->x;
-    float player_z = this->min->z;
+    float player_width = this->max.x - this->min.x;
+    float player_depth = this->max.z - this->min.z;
+    float player_x = this->min.x;
+    float player_z = this->min.z;
 
     if(player_x <= box_x + box_width &&
        player_x + player_width >= box_x &&
@@ -114,10 +123,10 @@ bool BoundingBox::is_bounding_box_inside(BoundingBox& box)
 
 Vec3 get_middle_of_bounding_box(BoundingBox box)
 {
-    float box_width = box.max->x - box.min->x;
-    float box_depth = box.max->z - box.min->z;
-    float box_x = box.min->x;
-    float box_z = box.min->z;
+    float box_width = box.max.x - box.min.x;
+    float box_depth = box.max.z - box.min.z;
+    float box_x = box.min.x;
+    float box_z = box.min.z;
     Vec3 middle = {box_x + (box_width / 2.0f), 0.01f, box_z + (box_depth / 2.0f)};
     return middle;
 }
@@ -125,9 +134,9 @@ Vec3 get_middle_of_bounding_box(BoundingBox box)
 Vec3 get_scale_of_bounding_box(BoundingBox box)
 {
     Vec3 result = {
-        box.max->x - box.min->x,
+        box.max.x - box.min.x,
         0.0f,
-        box.max->z - box.min->z
+        box.max.z - box.min.z
     };
     return result;
 }

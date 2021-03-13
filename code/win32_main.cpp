@@ -107,11 +107,11 @@ static Mesh tree;
 static Mesh trees[4];
 
 static Player player;
+
 static Controller controller;
 static ThirdPersonCamera third_person_camera = ThirdPersonCamera(&player.position, &player.current_rotation);
 static Terrain terrain;
 
-static Mesh quad;
 static Mesh bounding_box_quad;
 static Mesh bounding_box_quad_2;
 
@@ -124,9 +124,6 @@ void SetUpStuff()
     generate_terrain(&terrain, terrain_position, 4, 4, 4, "./data/grass.bmp");
     push_to_render(&terrain, mesh_shader.ID);
 
-    setup_quad(&quad); 
-    push_to_render(&quad, 1, mesh_shader.ID);
-
     setup_quad(&bounding_box_quad);
     push_to_render(&bounding_box_quad, 1, mesh_shader.ID);
     setup_quad(&bounding_box_quad_2);
@@ -137,7 +134,7 @@ void SetUpStuff()
         trees[i] = tree;
     }
 
-    Vec3 player_pos = {-2.0f, 0.0f, -2.0f};
+    Vec3 player_pos = {2.0f, 0.0f, 2.0f};
     init_player(&player, player_pos, mesh_shader.ID, 5.0f, 1.0f);
     push_to_render(trees, 4, mesh_shader.ID);
     
@@ -148,50 +145,47 @@ void SetUpStuff()
     glUniformMatrix4fv(projLocation, 1, GL_FALSE, proj.m[0]);
     unsigned  int texture1Location = glGetUniformLocation(mesh_shader.ID, "texture1");
     glUniform1i(texture1Location, 0);
+
+
+
 }
 
 void UpdateStuff(float deltaTime)
 {
-    player_input_handler(&player, &controller);
+    player_input_handler(&player, &controller); 
     process_player_movement(&player, deltaTime);
-
     process_camera_movement(&third_person_camera, deltaTime);
-
-    Vec3 quad_pos = {player.position.x, player.position.y, player.position.z};
-    Matrix quad_trans = get_translation_matrix(quad_pos);
-    quad.model = quad_trans; 
 
     view = third_person_camera.view;
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.m[0]);
    
     Vec3 check_positions[4]; 
+
+    BoundingBox test_box[6];
+
     for(int y = 0; y < 2; y++)
     {
         for(int x = 0; x < 2; x++)
         {
             Vec3 trans_tree = {(float)x * 4, 0.0f, (float)y * 4};
-            check_positions[(y * 2) + x] = trans_tree;
             Matrix translation_tree = get_translation_matrix(trans_tree);
-            trees[(y * 2) + x].model = translation_tree;
+            trees[(y * 2) + x].model = translation_tree; 
+            test_box[2 + ((y * 2) + x)].min = {trans_tree.x - 0.5f, 0.0f, trans_tree.z - 0.5f};
+            test_box[2 + ((y * 2) + x)].max = {trans_tree.x + 0.5f, 0.0f, trans_tree.z + 0.5f}; 
         }
     }
 
-    BoundingBox test_box[2];
-    Vec3 test_box_min = {-2.5f, 0.0f, -4.0f};
-    Vec3 test_box_max = {8.0f, 0.0f,  -2.5f};
-    Vec3 test_box_min_2 = {-4.0f, 0.0f, -2.5f};
-    Vec3 test_box_max_2 = {-2.5f, 0.0f, 8.0f};
-    test_box[0].min = &test_box_min;
-    test_box[0].max = &test_box_max;
-    test_box[1].min = &test_box_min_2;
-    test_box[1].max = &test_box_max_2;
-    player_handle_colitions(&player, test_box, 2);
+    test_box[0].min = {-2.6f, 0.0f, -4.0f};
+    test_box[0].max = {8.0f, 0.0f,  -2.5f};
+    test_box[1].min = {-4.0f, 0.0f, -4.0f};
+    test_box[1].max = {-2.5f, 0.0f, 8.0f};
+    player_handle_colitions(&player, test_box, 6);
     Vec3 bounding_box_pos = get_middle_of_bounding_box(test_box[0]);
     Vec3 bounding_box_scale = get_scale_of_bounding_box(test_box[0]);
     bounding_box_quad.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos);
     bounding_box_pos = get_middle_of_bounding_box(test_box[1]);
     bounding_box_scale = get_scale_of_bounding_box(test_box[1]);
-    bounding_box_quad_2.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos);
+    bounding_box_quad_2.model = get_scale_matrix(bounding_box_scale) * get_translation_matrix(bounding_box_pos); 
 }
 
 int WinMain(HINSTANCE hInstance,
@@ -202,7 +196,7 @@ int WinMain(HINSTANCE hInstance,
 
     WNDCLASS wc;
     ZeroMemory(&wc, sizeof(wc));
-    wc.style         = CS_HREDRAW | CS_VREDRAW;;
+    wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = hInstance; 
     wc.lpszClassName = "FrameClass";

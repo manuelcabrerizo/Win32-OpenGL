@@ -42,6 +42,7 @@ float vec2_dot(Vec2 v0, Vec2 v1);
 Vec3 operator+(const Vec3& v0, const Vec3& v1);
 Vec3 operator-(const Vec3& v0, const Vec3& v1);
 Vec3 operator/(const Vec3& v0, const Vec3& v1);
+Vec3 operator*(const Vec3& v0, const Vec3& v1);
 Vec3 operator-(const Vec3& v);
 Vec3 operator+(const Vec3& v, const float& s);
 Vec3 operator-(const Vec3& v, const float& s);

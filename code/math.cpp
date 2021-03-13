@@ -122,6 +122,16 @@ Vec3 operator/(const Vec3& v0, const Vec3& v1)
     return result;
 }
 
+Vec3 operator*(const Vec3& v0, const Vec3& v1)
+{
+    Vec3 result;
+    result.x = v0.x * v1.x;
+    result.y = v0.y * v1.y;
+    result.z = v0.z * v1.z;
+    return result;
+
+}
+
 Vec3 operator-(const Vec3& v)
 {
     Vec3 result;

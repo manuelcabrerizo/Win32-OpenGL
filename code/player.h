@@ -11,6 +11,7 @@ struct Player
     Vec3 new_position;
     Vec3 direction;
     float speed;
+    float speed_back_up;
     float current_speed_x = 0;
     float current_speed_y = 0;
     float current_rotation = 0;
