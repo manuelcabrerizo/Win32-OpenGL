@@ -1,5 +1,89 @@
 #include "terrain.h"
 #include <glad/glad.h>
+#include "renderer.h"
+
+static BoundingBox* test_box;
+static int g_num_quads = 0;
+
+static Mesh tree;
+static Mesh* trees;
+
+static int map[400] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 
+    1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 
+    1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1,
+    1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 
+    1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 
+    1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 
+};
+
+void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader)
+{
+    int number_of_quads = 0;
+    for(int y = 0; y < 20; y++)
+    {
+        for(int x = 0; x < 20; x++)
+        {
+            if(map[(y * 20) + x] == 1)
+            {
+                number_of_quads++;
+            }
+        }
+    }
+    g_num_quads = number_of_quads;
+    test_box = (BoundingBox*)malloc(number_of_quads * sizeof(BoundingBox));
+
+    trees = (Mesh*)malloc((number_of_quads * 16) * sizeof(Mesh));
+    LoadOBJFileIndex(&tree, "./data/tree.obj", "./data/tree4.bmp");
+    for(int i = 0; i < number_of_quads * 16; i++)
+    {
+        trees[i] = tree;
+    }
+    push_to_render(trees, number_of_quads * 16, mesh_shader.ID);
+
+
+    int index = 0;
+    for(int y = 0; y < 20; y++)
+    {
+        for(int x = 0; x < 20; x++)
+        {
+            if(map[(y * 20) + x] == 1)
+            {
+                test_box[index].min = {((float)x * terrain->cell_spacing) - 2.0f, 0.0f, ((float)y * terrain->cell_spacing) - 2.0f};
+                test_box[index].max = {((float)x * terrain->cell_spacing) + 2.1f, 0.0f, ((float)y * terrain->cell_spacing) + 2.1f};
+                for(int i = 0; i < 4; i++)
+                {
+                    for(int j = 0; j < 4; j++)
+                    {
+                        Vec3 current_tree_pos = {((float)x * terrain->cell_spacing + i) - 1.5f, 0.0f, ((float)y * terrain->cell_spacing + j) - 1.5f};
+                        trees[(index * 16) + ((i * 4) + j)].model = get_translation_matrix(current_tree_pos);
+                    }
+                }
+                index++;
+
+            }
+        }
+    }
+}
+
+void terrain_coilitions(Player* player)
+{
+    player_handle_colitions(player, test_box, g_num_quads);
+}
 
 void generate_terrain(Terrain* terrain, Vec3 position, int num_row, int num_col, int cell_spacing, const char* texture_path)
 {

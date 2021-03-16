@@ -5,6 +5,9 @@
 
 struct Controller
 {
+    // temporal
+    bool x_was_press = false;
+
     bool up;
     bool down;
     bool left;

@@ -74,6 +74,7 @@ struct Mesh
     Texture tex;
     uint32_t texId;
     Matrix model;
+    bool should_render = true;
 };
 
 struct BoundingBox
