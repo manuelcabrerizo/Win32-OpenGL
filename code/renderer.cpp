@@ -56,12 +56,7 @@ void push_to_render_get_fire_ref(Mesh* mesh, int num_meshes, uint32_t shaderId, 
 }
 
 void render(float deltaTime)
-{
-    
-    char message[63];
-    sprintf(message, "render_count: %d\n", (int)render_buffer.size());
-    OutputDebugString(message);
-    
+{    
     for(int i = 0; i < render_buffer.size(); i++)
     {
         shader_use(render_buffer[i].shaderId);
