@@ -182,6 +182,11 @@ void operator+=(Vec3& v0, const Vec3& v1)
     v0 = v0 + v1;
 }
 
+void operator-=(Vec3& v0, const Vec3& v1)
+{
+    v0 = v0 - v1;
+}
+
 float vec3_dot(Vec3 a, Vec3 b)
 {
     float result = (a.x * b.x) + (a.y * b.y) + (a.z * b.z);

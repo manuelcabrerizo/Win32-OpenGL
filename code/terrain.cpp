@@ -1,31 +1,37 @@
 #include "terrain.h"
 #include <glad/glad.h>
 #include "renderer.h"
+#include "enemy.h"
 
 static BoundingBox* test_box;
 static int g_num_quads = 0;
+static int g_num_enemies = 0;
 
 static Mesh tree;
 static Mesh* trees;
 
+static Mesh enemy_bullet;
+static Mesh** enemy_bullets;
+static Enemy* enemies;
+
 static int map[400] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
     1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
-    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 1, 
     1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 
     1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 
     1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 
     1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 2, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 
     1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1,
-    1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 
+    1, 1, 1, 0, 1, 1, 1, 1, 0, 2, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 
     1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
+    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
     1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
-    1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 
+    1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 
     1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 
@@ -34,6 +40,7 @@ static int map[400] = {
 void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader)
 {
     int number_of_quads = 0;
+    int number_of_enemies = 0;
     for(int y = 0; y < 20; y++)
     {
         for(int x = 0; x < 20; x++)
@@ -42,9 +49,14 @@ void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader)
             {
                 number_of_quads++;
             }
+            if(map[(y * 20) + x] == 2)
+            {
+                number_of_enemies++;
+            }
         }
     }
     g_num_quads = number_of_quads;
+    g_num_enemies = number_of_enemies;
     test_box = (BoundingBox*)malloc(number_of_quads * sizeof(BoundingBox));
 
     trees = (Mesh*)malloc((number_of_quads * 16) * sizeof(Mesh));
@@ -55,8 +67,20 @@ void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader)
     }
     push_to_render(trees, number_of_quads * 16, mesh_shader.ID);
 
+    LoadOBJFileIndex(&enemy_bullet, "./data/bullet.obj", "./data/bullet-enemy.bmp"); 
+    enemies = (Enemy*)malloc(number_of_enemies * sizeof(Enemy));
+    enemy_bullets = (Mesh**)malloc(number_of_enemies * sizeof(Mesh*));
+    for(int i = 0; i < number_of_enemies; i++)
+    {
+        enemy_bullets[i] = (Mesh*)malloc(10 * sizeof(Mesh));
+        for(int j = 0; j < 10; j++)
+        {
+            enemy_bullets[i][j] = enemy_bullet;
+        }
+    }
 
     int index = 0;
+    int index_enemy = 0;
     for(int y = 0; y < 20; y++)
     {
         for(int x = 0; x < 20; x++)
@@ -74,15 +98,28 @@ void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader)
                     }
                 }
                 index++;
-
+            }
+            
+            if(map[(y * 20) + x] == 2)
+            {
+                Vec3 enemy_pos = {(float)x * terrain->cell_spacing, 1.0f, (float)y * terrain->cell_spacing};
+                enemies[index_enemy] = Enemy(); 
+                init_enemy(&enemies[index_enemy], enemy_pos, mesh_shader.ID, 200);
+                init_enemy_projectil(&enemies[index_enemy], enemy_bullets[index_enemy], 10, 20, 10.0f); 
+                index_enemy++;
             }
         }
     }
+
 }
 
-void terrain_coilitions(Player* player)
+void terrain_coilitions(Player* player, float deltaTime)
 {
     player_handle_colitions(player, test_box, g_num_quads);
+    for(int i = 0; i < g_num_enemies; i++)
+    {
+        update_enemy(&enemies[i], &player->position, deltaTime);
+    }
 }
 
 void generate_terrain(Terrain* terrain, Vec3 position, int num_row, int num_col, int cell_spacing, const char* texture_path)

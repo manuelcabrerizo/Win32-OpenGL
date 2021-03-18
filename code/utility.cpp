@@ -35,6 +35,15 @@ float absf(float a)
     return a;
 }
 
+Vec3 abs_vec3(Vec3 v)
+{
+    Vec3 result;
+    result.x = absf(v.x);
+    result.y = absf(v.y);
+    result.z = absf(v.z);
+    return result;
+}
+
 
 bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
                                 Vec3& contact_point, Vec3& contact_normal, float& t_hit_near)

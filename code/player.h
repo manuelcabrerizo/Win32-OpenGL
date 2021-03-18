@@ -6,19 +6,6 @@
 #include "math.h"
 #include "controller.h"
 
-struct Fireball
-{
-    bool* should_render;
-    float current_rotation; 
-    Vec3  position;
-    Vec3  direction;
-    float distance_traveled;
-    float max_distance;
-    float speed;
-    Mesh*  mesh;
-    int render_id;
-};
-
 struct Player
 {
     int shaderId;

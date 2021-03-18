@@ -85,10 +85,24 @@ struct BoundingBox
     bool is_bounding_box_inside(BoundingBox& box);
 };
 
+struct Fireball
+{
+    bool* should_render;
+    float current_rotation; 
+    Vec3  position;
+    Vec3  direction;
+    float distance_traveled;
+    float max_distance;
+    float speed;
+    Mesh*  mesh;
+    int render_id;
+};
+
 float maxf(float a, float b);
 float minf(float a, float b);
 void swap(float& a, float& b);
 float absf(float a);
+Vec3 abs_vec3(Vec3 v);
 bool ray_intersect_bounding_box(Vec3 ray_origin, Vec3 ray_dir, BoundingBox target,
                                 Vec3& contact_point, Vec3& contact_normal, float& t_hit_near);
 Vec3 get_middle_of_bounding_box(BoundingBox box);

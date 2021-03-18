@@ -10,7 +10,7 @@
 #include "player.h"
 #include "camera.h"
 #include "terrain.h"
-
+#include "enemy.h"
 #define global_variable static
 #define WNDWIDTH 1000
 #define WNDHEIGHT 800
@@ -116,19 +116,19 @@ void SetUpStuff()
 {   
     shader_load(&mesh_shader, "./code/mesh_shader.vert", "./code/mesh_shader.frag");
     LoadOBJFileIndex(&bullet, "./data/bullet.obj", "./data/bullet.bmp"); 
-    
-    Vec3 terrain_position = {0.0f, 0.0f, 0.0f};
-    generate_terrain(&terrain, terrain_position, 20, 20, 4, "./data/grass.bmp");
-    push_to_render(&terrain, mesh_shader.ID);
-    setup_terrain(&player, &terrain, mesh_shader); 
 
-    Vec3 player_pos = {10.0f, 0.0f, 10.0f};
+    Vec3 player_pos = {6.0f, 0.0f, 10.0f};
     init_player(&player, player_pos, mesh_shader.ID, 7.0f, 200.0f);
     for(int i = 0; i < 10; i++)
     {
         bullets[i] = bullet;
     }
     init_player_projectil(&player, bullets, 10, 20, 20.0f);
+
+    Vec3 terrain_position = {0.0f, 0.0f, 0.0f};
+    generate_terrain(&terrain, terrain_position, 20, 20, 4, "./data/grass.bmp");
+    push_to_render(&terrain, mesh_shader.ID);
+    setup_terrain(&player, &terrain, mesh_shader); 
 
     shader_use(mesh_shader.ID);
     proj = get_projection_perspective_matrix(45.0f*PI/180.0f, 800.0f / 600.0f, 0.1f, 100.0f);
@@ -145,7 +145,8 @@ void UpdateStuff(float deltaTime)
     process_player_movement(&player, deltaTime);
     process_camera_movement(&third_person_camera, deltaTime);
     update_fireballs(&player, deltaTime);
-    terrain_coilitions(&player);
+    terrain_coilitions(&player, deltaTime);
+
     view = third_person_camera.view;
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.m[0]);
 }

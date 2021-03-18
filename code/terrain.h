@@ -21,7 +21,7 @@ struct Terrain
 
 void generate_terrain(Terrain* terrain, Vec3 position, int num_row, int num_col, int cell_spacing, const char* texture_path);
 void setup_terrain(Player* player, Terrain* terrain, Shader mesh_shader);
-void terrain_coilitions(Player* player);
+void terrain_coilitions(Player* player, float deltaTime);
 
 
 

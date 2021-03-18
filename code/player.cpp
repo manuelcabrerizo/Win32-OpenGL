@@ -188,7 +188,7 @@ void update_fireballs(Player* player, float deltaTime)
             float new_pos_x = sinf(to_radiant(player->fireballs[i].current_rotation));
             float new_pos_z = cosf(to_radiant(player->fireballs[i].current_rotation));
             player->fireballs[i].direction.x = new_pos_x;
-            player->fireballs[i]. direction.z = new_pos_z;
+            player->fireballs[i].direction.z = new_pos_z;
             player->fireballs[i].direction.y = 0.0f;
             player->fireballs[i].position += (player->fireballs[i].direction * player->fireballs[i].speed * deltaTime); 
             Matrix transform = get_translation_matrix(player->fireballs[i].position);

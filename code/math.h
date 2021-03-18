@@ -49,6 +49,7 @@ Vec3 operator-(const Vec3& v, const float& s);
 Vec3 operator*(const Vec3& v, const float& s);
 Vec3 operator/(const Vec3& v, const float& s);
 void operator+=(Vec3& v0, const Vec3& v1);
+void operator-=(Vec3& v0, const Vec3& v1);
 float vec3_length(Vec3 v);
 float vec3_dot(Vec3 v0, Vec3 v1);
 Vec3 vec3_cross(Vec3 a, Vec3 b);
